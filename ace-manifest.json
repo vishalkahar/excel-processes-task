@@ -26,8 +26,7 @@
     },
     "process:file": {
       "settings": {
-        "loadApp": true,
-        "stayAlive": true
+        "loadApp": true
       },
       "commandPath": "./commands/ProcessFile",
       "commandName": "process:file",

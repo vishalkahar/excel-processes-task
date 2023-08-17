@@ -1,13 +1,34 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import File from 'App/Models/File'
-// import Client from 'App/Models/Client'
-// import Bank from 'App/Models/Bank'
-// import Address from 'App/Models/Address'
+import Database from '@ioc:Adonis/Lucid/Database'
+import ExcelProcessor from 'your-excel-processor-library' // Replace with your actual library
 
 export default class ExcelProcessesController {
-  public async process(ctx: HttpContextContract) {
-    const files = await File.query().orderBy('id').limit(2)
-    // const files = await File.all()
-    return ctx.response.json({ message: 'Hello Candidate, please validate and sanitize the data before store data into the database', files })
+  public async uploadFile({ request }: HttpContextContract) {
+    // Handle file upload
+    const file = request.file('excelFile')
+
+    // Process the uploaded file using your ExcelProcessor library
+    const processingResult = await ExcelProcessor.processFile(file.tmpPath)
+
+    // Determine the file status and update the database accordingly
+    const { totalCount, processedCount } = processingResult
+    let status = 'Uploaded'
+
+    if (processedCount === totalCount) {
+      status = 'Processed Fully'
+    } else if (processedCount > 0) {
+      status = 'Processed Partial'
+    } else {
+      status = 'Skipped'
+    }
+
+    await Database.table('excel_files').insert({
+      file_path: file.tmpPath,
+      status,
+      total_clients: totalCount,
+      processed_clients: processedCount,
+    })
+
+    return { message: 'File uploaded and processed successfully.' }
   }
 }

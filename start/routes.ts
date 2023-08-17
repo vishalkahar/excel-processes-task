@@ -5,3 +5,5 @@ Route.get('/', (ctx) => ctx.view.render('welcome'))
 Route.group(() => {
   Route.get('process', 'ExcelProcessesController.process')
 }).prefix('api/v1')
+
+Route.post('/upload-excel', 'ExcelProcessesController.uploadFile')
